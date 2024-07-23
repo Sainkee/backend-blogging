@@ -1,24 +1,32 @@
-const express = require("express");
-const mongoose = require("mongoose");
-const cors = require("cors");
-const router = require("./route/postRoute/post.route");
-require("dotenv").config();
+import express from "express";
+import dotenv from "dotenv";
+import cors from "cors";
+import userRouter from "./route/user.route.js";
+import postRouter from "./route/post.route.js";
+import commentRouter from "./route/comment.route.js"
+import dbConnect from "./config/dbConnect.js";
+import cookieParser from "cookie-parser";
 
-console.log(process.env);
+dotenv.config();
 
 const app = express();
+const PORT = process.env.PORT || 4000;
+
+// Middleware
 app.use(express.json());
-const PORT = process.env.PORT || 3000;
-mongoose.connect(process.env.SECRET_STRING);
-const db = mongoose.connection;
-db.on("error", console.error.bind(console, "MongoDB connection error:"));
-db.once("open", () => {
-  console.log("Connected to MongoDB");
-});
-
+app.use(express.urlencoded({ extended: true }));
 app.use(cors());
+app.use(cookieParser());
 
-app.use(router);
+// Routes
+app.use("/api/v1/user", userRouter);
+app.use("/api/v1/post", postRouter);
+app.use("/api/v1/comment", commentRouter);
+
+// Database Connection
+dbConnect();
+
+// Start Server
 app.listen(PORT, () => {
-  console.log(`server is running ${PORT}`);
+  console.log(`Server is running on http://localhost:${PORT}`);
 });
